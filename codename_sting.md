@@ -6,11 +6,13 @@ Codename_Sting
 _Andrés Ortiz Corrales - @demiurgosoft_ 
 
 
-![](images/explosion_light.png)
+![](images/explosion_light.png)    
 
 ------
 
-![cc-by-sa](images/cc-by-sa.png)
+![cc-by-sa](images/cc-by-sa.png)    
+
+![](images/koala.jpg)
 </center>
 
 
@@ -885,10 +887,10 @@ Es buena práctica agrupar objetos estáticos (paredes, luces etc...) y marcarlo
 7. Evitar demasiados objetos en la escena (y en la cámara)
 8. Reducir la calidad de las luces si es posible
 9. Generar **LightMaps** (`Views/Lightning`) cambiando las variables de **Baking** en algunas luces a **Baked** o **Mixed**. Esta técnica, renderizará las luces como texturas en los objetos estáticos (**Baking**) generando unas sombras de gran calidad que no tienen que ser procesadas a tiempo real. Esta técnica, sin embargo, impedirá generar sombras a tiempo real.    
-	![](images/realtime.png)     
-	_Luces a tiempo real_
-	![](images/baked.png)    
-	_Luces con lightmaps_    
+	![](images/realtime.png)   
+	_Luces a tiempo real_   
+	![](images/baked.png)   
+	_Luces con lightmaps_   
 10. Eliminar objetos fuera de escena (muy alejados) o inútiles, evitar llenar la jerarquía de objetos vacíos.
 
 ### Física
