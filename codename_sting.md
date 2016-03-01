@@ -39,8 +39,26 @@ Su fama se debe a ser realtivamente sencillo de usar, barato y multiplataforma (
 
 Comparándolo con estos motores, Unity es perfecto para desarrollo de juegos _indie_ en los que la calidad gráfica no sea un factor principal, videojuegos para plataformas móvil (y otras) así como para herramientas de visualización 3D.
 
-La ultima versión de Unity, además, mejoró notablemente el rendimiento y la calidad gráfica de los juegos resultantes, como demuestra la animación **The Blacksmith** (<https://www.youtube.com/watch?v=G-zLx5JVMVE>).
+La ultima versión de Unity, además, mejoró notablemente el rendimiento y la calidad gráfica de los juegos resultantes, como demuestra la animación [The Blacksmith](https://www.youtube.com/watch?v=G-zLx5JVMVE).
 
+## Estructura de Unity
+Unity posee una estructura basada en **GameObjects** y **Components**.
+
+![](images/gameobject_diagram.png)
+_Estructura de objetos de Unity_
+
+Todo lo que usemos en nuestro juego serán gameObjects, cada gameObject, sin embargo, tendrá distintos componentes que definirán su comportamiento y harán uso de nuestros assets, a lo largo de la guía veremos como usar varios de estos componentes, aquí listamos algunos de los más usados:   
+* **Transform:** Es el único componente que se encuentra en todos los gameObjects, define la posición, rotación y escala del objeto, así como su posición en la jerarquía de la escena
+* **Mesh Filter && Mesh Renderer:** Estos dos componentes obtendrán un mesh de los assets y lo renderizarán en pantalla junto con las texturas necesarias
+* **Rigidbody3D:** Incorpora el elemento al motor físico, de forma que le afectan las fuerzas (usar _rigidbody2D_ para objetos juegos 2D)
+* **Collider:** Hay diversos colliders distntos, se encargan de detección de colisiones entre objetos (usar _collider2D_ en juegos 2D)
+* **Camera:** Define una cámara del juego
+* **Light:** Define una luz
+* **Audio Source:** Define un origen de Audio
+* **Script:** Este componente nos permite añadir un script nuestro para definir un nuevo componente del objeto
+
+
+> De esta forma, combinaciones de estos componentes producen diversos objetos de juego (por ejemplo, un mesh de bombilla + una luz creará un objeto bombilla con iluminación)
 
 <div style="page-break-before:always"></div>
 
@@ -58,8 +76,10 @@ _Estructura del Proyecto_
 
 > La interfaz de Unity está compuesta por ventanas, que podemos adaptar a nuestro gusto, si no aparece alguna ventana, es posible ver todas las ventanas (y abirlas) en el menú `windows`
 
+<div style="page-break-before:always"></div>
+
 ## Escenario
-El escenario consistirá en una única escena, emulando los juegos fps clásicos
+El juego consistirá en una única escena interior, emulando los juegos fps clásicos
 
 ### Elementos principales
 Comenzaremos creando un esqueleto de un nivel (Level1) para nuestro FPS, para ello creamos una nueva escena (`File/New Scene`).
@@ -75,16 +95,16 @@ _Componente Transform_
 
 >El componente **Transform** se encuentra en todos los _Game Objects_ y nos permite modificar su posición, rotación y escala, así como modificar a sus padres e hijos en la jerarquía
 
-Para crear el esqueleto del escenario, nos basaremos en cubos, luego les añadiremos detalles, comenzaremos con el cubo que ya tenemos para formar el suelo, para ello, lo escalamos a [50,0,50], también la cambiaremos el nombre a _Floor_. Modificaremos su posición a [0,-3,0], de esta forma quedará un poco por debajo del origen de coordenadas, la rotación la mantenemos a [0,0,0].
+Para crear el esqueleto del escenario, nos basaremos en cubos, luego añadiremos detalles, comenzaremos con el cubo que ya tenemos para formar el suelo, para ello, lo escalamos a [50,1,50], también cambiaremos el nombre a _Floor_. Modificaremos su posición a [0,-3,0], de esta forma quedará un poco por debajo del origen de coordenadas, la rotación la mantenemos a [0,0,0].
 
-Posteriormente, crearemos a nuestro gusto los demás elementos básicos del escenario siguiendo el mismo proceso con cubos:
-1. 4 Paredes (escaladas a [50,10,1])
-2. Un segundo piso, escalado a [25,1,50] y posicionado en una mitad de la habitación, a una altura de 1.5 (4.5 desde el suelo)
-3. Una rampa, escalado a [20,1,6] aproximadamente, y rotada para que tenga una pendiente suave entre los dos pisos
+Posteriormente, crearemos a nuestro gusto los demás elementos básicos del escenario siguiendo el mismo proceso con cubos, por ejemplo:
+1. 4 Paredes (escaladas a [50,15,1]), puestas en los laterales "atravesando" el suelo
+2. Un segundo piso, escalado a [25,1,50] y posicionado en una mitad de la habitación, a una altura de 2 (4.5 desde el suelo)
+3. Una rampa, escalada a [20,1,6] aproximadamente, y rotada para que tenga una pendiente suave entre los dos pisos
 4. 2 Paredes en piso bajo (altura 5), separando la parte tapada por el segundo piso, con un hueco entre ellas
-    * **Importante** ir cambiando los nombres de los elementos, para diferenciarlos, no importa que sean nombres repetidos
-5. Crear 2 columnas en los bordes de las puertas (cubos escalados a [2,5,2])
+5. Crear 2 columnas en los bordes de las puertas (cubos escalados a [2.5,5,2.5])
 7. Finalmente, clonaremos las columnas y añadiremos unas pocas en la habitación interior, podemos además, poner una columna tumbada
+    * **Importante** ir cambiando los nombres de los elementos, para diferenciarlos, no importa que sean nombres repetidos
 
 ![](images/room1.png)    
 _Level1_
@@ -94,16 +114,24 @@ _Level1: Inner Room_
 
 > Más adelante, clonaremos el suelo para generar un techo, sin embargo, por comodidad trabajaremos así de momento
 
-Es recomendable organizar los elementos en la jerarquía, para ello, vamos a crear un nuevo objeto vacío (`Create/Create Empty`), lo renombramos a Room y arrastraremos todos los elementos que hemos creado dentro de este (no incluir Main Camera ni Directional Light)
+Es recomendable organizar los elementos en la jerarquía, para ello, vamos a crear un nuevo objeto vacío (`Create/Create Empty`), lo renombramos a Room (comprobar que se encuentra en posición [0,0,0] y arrastraremos todos los elementos que hemos creado dentro de este (no incluir Main Camera ni Directional Light)
+
+> Si un objeto padre en la jerarquía se mueve, rota o escala, Todos sus hijos sufrirán la misma transformación, de esta forma, si movemos el objeto _room_ que acabamos de crear, moveremos la habitación completa
 
 Este escenario corresponderá a un nivel de nuestro juego, puedes modificarlo a tu gusto o crear nuevos niveles de la misma forma. Antes de continuar, guardaremos la escena (`File/Save Scene As...`) en la carpeta **_Scenes** con el nombre **Level1.unity**
 
 ### Texturización
-En Unity (y la mayoría de motores gráficos) diversas texturas se asocian a uno o más **materiales**, que definen, no solo el color de la textura, sino el comportamiento de la luz entre otras cosas, estos materiales se asociarán entonces a los elementos.
+Ahora, queremos darle un aspecto más realista a nuestro escenario, para eso, la mejor opción consiste en _texturizar_ los elementos de la escena.
 
-Para crear un material, vamos a ir a una nueva escena y crearemos un cubo, cargamos la carpeta (`Textures/pattern_243`) en la carpeta Textures del proyecto, vemos que se han cargado 2 texturas.
+En Unity (y la mayoría de motores gráficos) diversas texturas se asocian a uno o más **materiales**, que definen, no solo el color de la textura, sino el comportamiento de la luz entre otras cosas, estos materiales se asociarán entonces a los elementos el juego que queramos.
 
-A continuación creamos un material (botón derecho, create, Material) en la carpeta Materials y asociamos este nuevo material al cubo.Al pinchar el cubo, veremos en el inspector, al final, nuestro nuevo material, ahora, asociaremos las texturas a los distintos **Maps** de un material, en concreto, asociaremos la textura `specular` al map **Albedo** (color base) y la textura `normal` al **Normal map**. Esta ultima, corresponde a un mapa de normales, que "engañará" al sistema de iluminación para mostrar detalles y reflejos aunque el objeto siga siendo un cubo modificando sus normales (**Bump Mapping**). Normalmente, será necesario indicar a Unity que una textura está configurada para ser un Normal map, unity avisará si no lo está y bastará con pinchar en **Fix Now**
+Para crear un material, vamos a ir a una **nueva escena** y crearemos un cubo, cargamos la carpeta (`Textures/pattern_243`) en la carpeta Textures del proyecto (arrastando en la ventana Project), vemos que se han cargado 2 texturas.
+
+A continuación creamos un material (botón derecho, create/Material) en la carpeta Materials y asociamos este nuevo material al cubo (arrastrando encima).
+
+Al pinchar el cubo, veremos en el inspector, al final,el nombre de nuestro nuevo material, ahora, asociaremos las texturas a los distintos **Maps** de un material, arrastrando las texturas en los cuadrados correspondientes.
+
+Asociaremos la textura `specular` al map **Albedo** (color base) y la textura `normal` al **Normal map**. Esta última, corresponde a un mapa de normales, que "engañará" al sistema de iluminación para mostrar relieve y reflejos inexistentes (**Bump Mapping**). Normalmente, será necesario indicar a Unity que una textura está configurada para ser un Normal map, unity avisará si no lo está y bastará con pinchar en **Fix Now**
 
 
 ![](images/material_comparison.png)    
@@ -112,23 +140,25 @@ _Comparación entre material con y sin normal map_
 > La mayoría de materiales proporcionados, poseen una textura correspondiente a albedo, otra a normal map y, en algunos casos, una para metallic y otra para emission
 
 
-Pinchando en **Shader**, aparecerá un desplegable en el material, que nos permitirá seleccionar un shader, que corresponde a una forma de renderizar un material (magia) y permitirá crear muchos tipos distinto de materiales, el shader "estándar" de unity tiene 2 versiones (Standard y Standard specular), diferenciadas en la forma de reflejar las luces, con esos dos es posible resolver la mayoría de problemas relacionados con materiales.
+Pinchando en **Shader**, aparecerá un desplegable en el material, que nos permitirá seleccionar un shader, que corresponde a una forma de renderizar un material y permitirá crear muchos tipos distinto de materiales, el shader "estándar" de Unity tiene 2 versiones (Standard y Standard Specular), diferenciadas en la forma de reflejar las luces, con esos dos es posible resolver la mayoría de problemas relacionados con materiales, para necesidades y efectos específicos podemos usar los otros shaders o programar nuestro propio shader mediante un lenguaje de shaders.
 
 **Texturizar level 1**    
-Volvamos a la escena Level1 (pinchando dos veces en \_Scenes/level1), y aprovechemos el material que ya hemos creado para texturizar el suelo.  
+Volvamos a la escena Level1 (pinchando dos veces en \_Scenes/level1), y aprovechemos el material que ya hemos creado para texturizar el suelo. Para ello, simplemente arrastramos el material al objeto floor, ya sean en la escena o en la jerarquía
 
-Como vemos, la textura se ha cargado a un tamaño inadecuado para un suelo (la rejilla es enorme) si acercamos la vista, veremos la textura pixelada:    
 ![](images/text_room_notiling.png)    
 _Textura del suelo_
 
-Para mejorar este aspecto, recurriremos a "repetir" la textura varias veces en suelo, (**Tiling**), para ello, en configuración de textura, vamos a la opción Tiling (Main Maps), debido al gran tamaño del suelo, asignaremos unos valores de 10x10 en tiling (en lugar de 1x1), vemos como la textura se hace más pequeña:
+Como vemos, la textura se ha cargado a un tamaño inadecuado para un suelo (la rejilla es enorme) si acercamos la vista, veremos la textura pixelada:    
+
+
+Para mejorar este aspecto, recurriremos a "repetir" la textura varias veces en suelo, (**Tiling**), para ello, en configuración de textura, vamos a la opción Tiling (Main Maps), debido al gran tamaño del suelo, asignaremos unos valores de 10x10 en tiling (en lugar de 1x1), vemos como la textura se hace más pequeña, hay que tener en cuenta que esta modficación afectará a **todos** los elementos con dicho material (si se quiere un tiling distinto, crear un nuevo material usando las mismas texturas):
 
 ![](images/text_room_tiling.png)     
 _Textura del suelo con tiling_
 
 >Aunque el patrón de la textura se repite, desde la posición como jugadores que tendremos (unos 2 metros sobre el suelo) no se aprecia este patrón, y conseguimos mucha mayor calidad en la textura sin aumentar su resolución
 
-A continuación, siguiendo el mismo proceso, texturizamos el resto de elementos de la escena, se propone la siguiente combinación de texturas, pero se puede usar cualquier otra combinación u otros assets distintos (Crear un material por cada elemento de la lista):
+A continuación, siguiendo el mismo proceso, texturizamos el resto de elementos de la escena, se propone la siguiente combinación de texturas, pero se puede usar cualquier otra combinación u otros assets distintos (Crear un material distinto por cada elemento de la lista):
 
 * Suelo: pattern 242, tiling 10x10
 * Paredes: pattern 173, tiling 6x1
@@ -139,13 +169,15 @@ A continuación, siguiendo el mismo proceso, texturizamos el resto de elementos 
 
 > Aunque el suelo superior y la rampa sean la misma textura, el material debe ser distinto, pues se configura con distinto tiling
 
-Finalmente, clonamos el suelo, lo trasladamos hacia arriba para formar el techo, lo texturizamos con un nuevo material con el pattern 182, smoothness 0.2 y tiling 5x5
+Finalmente, clonamos el suelo, lo trasladamos hacia arriba para formar el techo y lo texturizamos con un nuevo material con el pattern 182, smoothness 0.2 y tiling 5x5
 
-![](images/level1_text.png)
+![](images/level1_text.png)    
+_Level 1 texturizado_
 
-
-> Como vemos, la textura se ve mal en el borde del suelo superior al hacer el tiling, para solucionarlo podemos optar por añadir un cubo nuevo, escalado a [1.2,50,1.2], rotarlo 90 grados en X y ponerlo en el borde (haciendo un saliente), texturizándolo aparte (por ejemplo un nuevo material con pattern243 y tiling 1,30)    
+Como vemos, la textura se ve mal en el borde del suelo superior al hacer el tiling, para solucionarlo podemos optar por añadir un cubo nuevo, escalado a [1.2,50,1.2], rotarlo 90 grados en X y ponerlo en el borde (haciendo un saliente), texturizándolo aparte (por ejemplo un nuevo material con pattern243 y tiling 1,30)    
 ![](images/border.png)
+
+<div style="page-break-before:always"></div>
 
 ## Crear nuevos objetos
 Para el juego, necesitaremos modelos más complejos que cubos y esferas, para ello, importaremos modelos 3D generados con programas externos como Blender, estos modelos nos servirán para añadir elementos decorativos a la escena e incorporar objetos funcionales al juego.
@@ -153,20 +185,22 @@ Para el juego, necesitaremos modelos más complejos que cubos y esferas, para el
 ### Importar modelos 3D
 Comenzaremos creando una nueva escena para trabajar cómodamente y creando una nueva carpeta `Metal Barrel` en _Imported Assets_
 1. Cargamos el archivo metal_barrel.fbx y todas las texturas .tga de `Models/Metal Barrel` dentro de nuestra nueva carpeta    
-    ![](images/white_barrel.png)
 2. Creamos la carpeta Textures y Meshes en Metal Barrel (Además de la carpeta Materials que se ha creado automáticamente) y ponemos cada asset en su sitio
-3. Creamos el material **Barrel_Black** y **Barrel_Rust** en Materials (podemos borrar el material por defecto), estos materiales corresponderán a 2 versiones distintas del mismo barril
-4. Cargamos en el material Barrel_Black las texturas **diffuse_black** para albedo y **normal_soft_bumps** como normal map
-5. Hacemos lo mismo con **diffuse_rust** y **normal_hard_bumps** con el material Barrel_Rust
+3. Cargamos metal_barrel.fbx en la escena
+	    ![](images/white_barrel.png)
+4. Creamos el material **Barrel_Black** y **Barrel_Rust** en Materials (podemos borrar el material por defecto), estos materiales corresponderán a 2 versiones distintas del mismo barril
+5. Cargamos en el material Barrel_Black las texturas **diffuse_black** para albedo y **normal_soft_bumps** como normal map
+6. Hacemos lo mismo con **diffuse_rust** y **normal_hard_bumps** con el material Barrel_Rust
+	* En estos materiales no es necesario configurar nada más, ues las texturas han sido hechas específicamente para el modelo proporcionado
     * Nótese que normal_hard_bumps aprovecha la técnica de bump_mapping para que el barril tenga efectos de golpes
-6. Ahora, al cargar el modelo metal_barrel a la escena podemos elegir entre estas dos texturas para hacer barriles distintos
+7. Ahora, al cargar el modelo metal_barrel a la escena podemos elegir entre estas dos texturas para hacer barriles distintos (cargando el material deseado en el objeto)
     ![](images/barrels.png)    
     *Metal_Barrel*
 
 ### Física: Rigidbody
 Estos barriles, a diferencia de nuestro escenario, podrán moverse con los impactos, para ello, haremos uso del motor de física de Unity.
 
-Comenzando con nuestra escena con los 2 barriles, crearemos un cubo/suelo de 10x10 debajo de estos a una cierta altura. Además, moveremos la cámara (_Main Camera_) a una posición donde veamos perfectamente los cubos, para la simulación de física debemos comenzar el juego (botón play) y veremos la escena desde la posición de la cámara.
+Trabajaremos en nuestra escena con los 2 barriles, crearemos un cubo/suelo de 10x10 debajo de estos a una cierta altura. Además, moveremos la cámara (_Main Camera_) a una posición donde veamos perfectamente los cubos, para la simulación de física debemos comenzar el juego (botón play) y veremos la escena desde la posición de la cámara.
 
 Si iniciamos la escena, veremos los dos barriles flotando sobre el suelo, aún no tienen física. Paramos el juego pulsando el botón play de nuevo (por cada vez que modificáis algo sin parar el juego muere un koala)
 
@@ -207,7 +241,7 @@ Hay distintos tipos de colliders, que nos permitirán mejorar la aproximación a
 
 > Unity, además, tiene un **Terrain Collider** que se usa para detectar colisiones de los terrenos y un **Wheel Collider** específicamente diseñado para ruedas
 
-> Un collider, además, se puede configurar como **trigger** de forma que se detecten sus colisiones por scripting, pero no tengan efecto en la física
+Un collider, además, se puede configurar como **trigger** de forma que se detecten sus colisiones por scripting, pero no tengan efecto en la física.
 
 Para usar más de un collider en un objeto, basta con añadirle más componentes de colliders al propio objeto o a sus hijos, no importa que estos colliders se crucen, pero hay que tener en cuenta que más colliders implican más coste al calcular la física.
 
@@ -221,13 +255,17 @@ Podemos ahora aplicar diversos colliders para mejorar el comportamiento de los b
     * Center: [0,0,0]
     * Size: [0.4,0.4,0.89]
 
-De esta forma, los barriles se podrán "apilar" en altura, pero no en sus lados   
+De esta forma, los barriles se podrán "apilar" en altura, pero no en sus lados
+
 ![](images/good_colliders.png)
 
-### Prefabs
-Ahora que tenemos un par de barriles que se comportan como queremos,seria recomendable "guardarlos" para poder generar tantos como quisiéramos en nuestro nivel principal, para ellos, crearemos unos "prefabs".
+Estos colliders no son exactos, y podrá haber intersección entre los modelos, pero aproximan lo suficiente para el juego que queremos.
 
-> Un prefab es un gameobject con toda su configuración almacenada como un Asset, todos los gameobjects generados con ese prefab guardaran referencia a este, pudiendo modificarlos todos a la vez. **Cuidado:** Un prefab solo almacena referencias, es preciso mantener todos los assets originales.
+### Prefabs
+Ahora que tenemos un par de barriles que se comportan como queremos, sería recomendable "guardarlos" para poder generar tantos como quisiéramos en nuestro nivel principal, para ellos, crearemos unos **prefabs**.
+
+> Un prefab es un gameobject con toda su configuración almacenada como un Asset, todos los gameobjects generados con ese prefab guardarán referencia a este, pudiendo modificarlos todos a la vez.    
+**Cuidado:** Un prefab solo almacena referencias, es preciso mantener todos los assets originales.
 
 Para crear un prefab, simplemente pongamos el barril negro en una posición, rotación y tamaño que queramos por defecto, y arrastramos el objeto de la jerarquía a la carpeta de prefabs, para crear nuevos barriles simplemente los cargamos desde prefabs. (un buen tamaño es escalarlo a 1.5)
 
@@ -235,18 +273,19 @@ Ahora, podemos eliminar o modificar el barril negro (si pulsamos apply, estos ca
 
 Podemos aprovechar toda la configuración que ya tenemos para crear el segundo prefab del barril oxidado, simplemente cambiemos el material del objeto y creemos otro prefab igual (con otro nombre)
 
-Finalmente, ya tenemos nuestro propio asset de barril, listo para usarse en todos los niveles que queramos, podemos entonces ir a Level1 (no es necesario guardar esta escena) y cargar nuestros barriles en nuestro mapa
+Finalmente, ya tenemos nuestro propio asset de barril, listo para usarse en todos los niveles que queramos, podemos entonces ir a Level1 y cargar nuestros barriles en nuestro mapa (cada barril tendrá su modelo, física etc...)
 
 ![](images/barrel_level.png)    
 _Barriles cargados en Level1_
 
 > **Mejorar Barriles:** Para mejorar el comportamiento de los barriles, se recomienda ir probando diversas configuraciones del rigidbody, hasta que tenga el comportamiento deseado (masa, resistencia etc..)
 
+<div style="page-break-before:always"></div>
 
 ## Scripting: Introducción
-Para simular un comportamiento simple como unos barriles o cajas, es posible hacerlo únicamente con la física de Unity, sin embargo, un comportamiento más complejo requerirá programarlo. Unity permite crear scripts que posteriormente se asignaran a los objetos como componentes, desde estos scripts (clases) podremos acceder a la API de Unity para modificar los valores del resto de componentes y objetos, realizar cálculos e instanciar/destruir objetos, así como controlar el flujo de animaciones y otros aspectos.
+Para simular un comportamiento simple como unos barriles o cajas, la física de Unity es suficiente, sin embargo, un comportamiento más complejo requerirá programarlo. Unity permite crear scripts que posteriormente se asignarán a los objetos como componentes, desde estos scripts (clases) podremos acceder a la API de Unity para modificar los valores del resto de componentes y objetos, realizar cálculos e instanciar/destruir objetos, así como controlar el flujo de animaciones y otros aspectos.
 
-En Unity podemos programar en **Javascript** o **C#**, es posible combinar scripts de ambos lenguajes, en este taller usaremos C#, que es el lenguaje más recomendado para Unity y posee una sintaxis parecida a Java
+En Unity podemos programar en **Javascript** o **C#**, en este taller usaremos C#, pues es el lenguaje más recomendado para Unity y posee una sintaxis parecida a Java.
 
 ![](images/gameobject_diagram.png)
 _Estructura de objetos de Unity_
@@ -270,13 +309,13 @@ public class MyScript : MonoBehaviour {
 ```
 _Estructura de un script de Unity (C#)_
 
-Un script típico de Unity implementa la superclase MonoDevelop, esta clase posee diversos **eventos** que implementaremos como métodos de la clase, que serán llamados en los distintos pasos de la ejecución del juego, los eventos principales son:    
+Un script típico de Unity implementa la superclase MonoDevelop, esta clase posee diversos **eventos** que implementaremos como métodos de la clase, estos serán llamados en los distintos pasos de la ejecución del juego, los eventos principales son:    
 * **Start:** Será llamado en el primer fotograma (o paso) antes que el resto, útil para inicialización del script
     * Existe el evento **Awake** que se llamará antes de Start, pero no garantiza que otros objetos estén cargados
 * **Update:** Será llamado en cada fotograma de renderizado (30~60 fps) **no** se garantiza las veces que será llamado en cada segundo, y dependerá de la configuración y del sistema final (puede llamarse 1 o 120 veces), importante evitar cálculos pesados en este evento (se realizarán muchas veces), útil para actualizar valores y gestionar aspectos de las transformadas o interacción del usuario
     * **LateUpdate:** Igual que update, pero se llama **después** de cada renderizado, útil para trabajar con cambios en la cámara
-* **FixedUpdate:** Será llamado en cada paso de cálculo de física, esto son 10fps por defecto (dependerá de la configuración de la máquina), fixed update **si** se ejecuta a una velocidad constante (aunque varía en función de la configuración), además coincide con la ejecución de los cálculos físicos. Útil para cualquier cálculo relacionado con física y colliders.    
-    * **Update vs FixedUpdate:** Un cambio en la API de Unity (por ejemplo, cambiar posición o acelerar un objeto) no surtirá efecto hasta el paso de renderizado, eso quiere decir que cualquier cambio gráfico (incluido Transform) tendrá efecto en el paso Update, mientras que los cambios físicos **solo** en los pasos de FixedUpdate. Realizar cambios en rigidbody en update no tendrá efecto durante varias llamadas (produciendo sobrecarga innecesaria en los cálculos) y tendrá peores resultados.
+* **FixedUpdate:** Será llamado en cada paso de cálculo de física, esto son 10fps por defecto (puede depender de la configuración de la máquina), fixed update **si** se ejecuta a una velocidad constante (aunque varía en función de la configuración), además coincide con la ejecución de los cálculos físicos. Útil para cualquier cálculo relacionado con física y colliders.    
+    * **Update vs FixedUpdate:** Un cambio en la API de Unity (por ejemplo, cambiar posición o acelerar un objeto) no surtirá efecto hasta el paso de renderizado, eso quiere decir que cualquier cambio gráfico (incluido Transform) tendrá efecto en el paso Update, mientras que los cambios físicos **sólo** surtirán efecto en los pasos de FixedUpdate. Realizar cambios de rigidbody en update no tendrá efecto durante varias llamadas (produciendo una sobrecarga innecesaria en los cálculos) y tendrá peores resultados (desincronización).
 * **OnCollisionEnter:** Se ejecutará cuando se detecte una colisión (solo se ejecutará una vez por colisión), para que se ejecute este evento, ambos objetos deberán tener colliders (no activados a trigger) y al menos uno un rigidbody. On CollisionEnter se ejecutará en ambos objetos
     * OnCollisionEnter posee un argumento de entrada **Collision** con información sobre la colisión
     * Al igual que OnCollisionEnter, tenemos **OnCollisionStay**, que se ejecutará **todos** los frames en los que la colisión se esté produciendo y **OnCollisionExit** que se ejecutará en el primer frame en el que la colisión deje de ocurrir
