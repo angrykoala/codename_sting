@@ -3,7 +3,7 @@
 Codename_Sting
 ===============
 **Desarrollo de un FPS con Unity**    
-_Andrés Ortiz Corrales @demiurgosoft_ 
+_Andrés Ortiz Corrales - @demiurgosoft_ 
 
 
 ![](images/explosion_light.png)
@@ -17,13 +17,37 @@ _Andrés Ortiz Corrales @demiurgosoft_
 <div style="page-break-before:always"></div>
 
 # Introducción
->Explicar Gameobject, assets y components
+Unity 5 es un _game engine_, es decir, un framework para el desarrollo de videojuegos, como tal posee una estructura similar al resto de motores de desarrollo de juegos y de programación 3D, con el objetivo de facilitar el desarrollo de un videojuego.
 
+Para ello, estos motores cuentan con una serie de herramientas de alto nivel:
+* **Motor de renderizado:** Se encarga del dibujado 3D (o 2D), normalmente basado en OpenGL o DirectX, abstrae toda la tarea de dibujado a una programación de alto nivel o editor visual (no confundir con una herramienta de modelado)
+* **Motor de física:** La complejidad de los juegos modernos (y capacidad de computación) requiere de un sistema de "simulación" física en los juegos, generalmente para obtener comportamientos realistas de los objetos (gravedad, velocidad, colisiones).
+* **API de Scripting:** La lógica del juego se programará en un lenguaje usando la API del _game engine_ y será ejecutada directamente por esta
+* **Interfaz de I/O:** Una capa de abstracción sobre la interfaz con los dispositivos del usuario permitirá adaptar el juego a múltiples plataformas y mejorar la compatibilidad con diversos equipos
+* **GUI:** Un sistema de interfaz gráfica independiente del renderizado (para menús, botones o elementos visuales 2D)
+
+Además de estos elementos, encontraremos herramientas de audio, animacion e inteligencia artificial entre otras.
+
+> Aunque la mayoría de motores de juegos poseen alguna herramienta de modelado simple, Unity no posee ninguna, por lo que todos los modelos del juego deberán cargarse aparte como assets o estar compuestos de primitivas simples
+
+Generalmente, el game engine consiste en el último paso en el flujo de desarrollo de un videojuego, comenzando por el diseño de este, creación de assets (música, modelos, texturas) y finalmente implementación del juego.
+
+## Unity
+[Unity](http://www.unity3d.com/) es un motor de videojuegos lanzado por primera vez en 2005, actualmente en su versión 5.
+
+Su fama se debe a ser realtivamente sencillo de usar, barato y multiplataforma (ordenadores, web, móviles y consolas). Comparándolo con otros motores de juego actuales como [Unreal](https://www.unrealengine.com) o [CryEngine](http://cryengine.com/) Unity nos permitirá desarrollar un videojuego desde 0 mucho más rápido (y barato) a costa de ciertas limitaciones al compararlas con los motores anteriores.
+
+Comparándolo con estos motores, Unity es perfecto para desarrollo de juegos _indie_ en los que la calidad gráfica no sea un factor principal, videojuegos para plataformas móvil (y otras) así como para herramientas de visualización 3D.
+
+La ultima versión de Unity, además, mejoró notablemente el rendimiento y la calidad gráfica de los juegos resultantes, como demuestra la animación **The Blacksmith** (<https://www.youtube.com/watch?v=G-zLx5JVMVE>).
+
+
+<div style="page-break-before:always"></div>
 
 # Guía de Proyecto
-Para el desarrollo de este proyecto, se usará **Unity 5**, además, se deberá usar el paquete de assets que se descargará junto con este manual
+Para el desarrollo de este proyecto, se usará **Unity 5**, además, se deberá usar el paquete de assets que se descargará junto con este manual.
 
-Crear los directorios:
+Comenzaremos creando un nuevo proyecto en Unity (por ejemplo codename_sting), tras familiarizarnos con el entorno creamos los siguientes directorios desde la propia interfaz de Unity (ventana Project):
 * \_Scenes
 * Scripts
 * Prefabs
@@ -31,6 +55,8 @@ Crear los directorios:
 
 ![](images/project_folders.png)    
 _Estructura del Proyecto_
+
+> La interfaz de Unity está compuesta por ventanas, que podemos adaptar a nuestro gusto, si no aparece alguna ventana, es posible ver todas las ventanas (y abirlas) en el menú `windows`
 
 ## Escenario
 El escenario consistirá en una única escena, emulando los juegos fps clásicos
@@ -222,8 +248,8 @@ Para simular un comportamiento simple como unos barriles o cajas, es posible hac
 
 En Unity podemos programar en **Javascript** o **C#**, es posible combinar scripts de ambos lenguajes, en este taller usaremos C#, que es el lenguaje más recomendado para Unity y posee una sintaxis parecida a Java
 
-![](images/unity_diagram.png)
-_Estructura de Unity_
+![](images/gameobject_diagram.png)
+_Estructura de objetos de Unity_
 
 ```C#
 using UnityEngine;
