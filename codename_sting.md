@@ -320,7 +320,7 @@ Un script típico de Unity implementa la superclase MonoDevelop, esta clase pose
     * OnCollisionEnter posee un argumento de entrada **Collision** con información sobre la colisión
     * Al igual que OnCollisionEnter, tenemos **OnCollisionStay**, que se ejecutará **todos** los frames en los que la colisión se esté produciendo y **OnCollisionExit** que se ejecutará en el primer frame en el que la colisión deje de ocurrir
 * **OnTriggerEnter/Stay/Exit:** Similar a colliders, pero solo cuando uno de los dos colliders es un trigger, si uno es trigger y otro collider, solo se activará este evento y no el de colisión
-* **OnGUI:** Se llamara en el momento de renderizado de elementos GUI
+* **OnGUI:** Se llamará en el momento de renderizado de elementos GUI
     * Hay múltiples eventos para gestionar elementos GUI
 
 > Además de estos, hay una gran cantidad de eventos (Messages) en la clase MonoBehaviour (además de los que podemos crear nosotros mismos) puedes consultarlos en la [Referencia de Unity](http://docs.unity3d.com/ScriptReference/MonoBehaviour.html)
@@ -329,9 +329,9 @@ Un script típico de Unity implementa la superclase MonoDevelop, esta clase pose
 ## Armas: Misil
 Nuestro objetivo en esta parte es crear un prefab misil, cuyo comportamiento intentará emular un misil (¿Qué esperabas?), esto implica "volar" en linea recta y explotar al contacto con un objeto.
 
-En este caso la física estándar de Unity no es suficiente, como con los barriles.
+En este caso la física estándar de Unity no es suficiente.
 
-El misil se encuentra ya empaquetado y preparado para usarse en **KHC_Missile.unitypackage**, basta con cargar este paquete (arrastrando en el proyecto), darle a importar y poner la carpeta generada en Imported assets. El paquete importado ya se encuentra creado como un prefab y texturizado, podemos ver que no tiene ni colliders ni rigidbody asociados.
+El modelos del misil se encuentra ya empaquetado y preparado para usarse en **KHC_Missile.unitypackage**, basta con cargar este paquete (arrastrando en el proyecto), darle a importar y poner la carpeta generada en Imported assets. El paquete importado ya se encuentra creado como un prefab y texturizado, podemos ver que no tiene ni colliders ni rigidbody asociados.
 
 Cargaremos un misil en la escena y le asociaremos un collider (por ejemplo, de cápsula) al objeto (el padre), el collider lo usaremos en la programación para detectar colisiones. Unos valores posibles de un capsule collider serían:
 * Centro: [0.069,-0.025,-0.12]
@@ -339,7 +339,7 @@ Cargaremos un misil en la escena y le asociaremos un collider (por ejemplo, de c
 * Height: 1.6
 * Direction: Z-Axis
 
-> El misil se encontrara en movimiento, por lo que no es importante que el collider sea inexacto, además, golpeara siempre por la punta, por lo que tampoco importa si la parte de atrás queda imperfecta
+> El misil se encontrará en movimiento, por lo que no es importante que el collider sea inexacto, además, golpeara siempre por la punta, por lo que tampoco importa si la parte de atrás queda imperfecta
 
 Añadimos también un rigidbody (necesario para detección de colisiones) sin embargo, ya que no queremos que se vea afectado por la gravedad, desactivamos **Use Gravity**
 
@@ -350,14 +350,16 @@ Tras esto, creamos un nuevo prefab con el misil como esta en la carpeta Prefabs 
 ### Scripting: Movimiento básico
 Nuestro objetivo es generar el movimiento en linea recta del misil, para ello, pinchamos `Add Component/New Script` y escribimos **MissileController** (seleccionamos C#), como vemos, se ha creado un componente Script y en la raíz del proyecto un nuevo script, movemos el script a la carpeta Scripts y pinchamos 2 veces, esto abrirá el entorno de programación (MonoDevelop u otro)
 
-Aparecerá una clase MonoDevelop por defecto (similar a la antes mostrada), nuestro objetivo será mover el misil el linea recta a velocidad constante, para ello podemos optar por diversas soluciones, en este caso, actualizaremos la posición del misil manualmente en cada frame mediante el componente transform:
+Aparecerá una clase MonoDevelop por defecto (similar a la antes mostrada), nuestro objetivo será mover el misil el linea recta a velocidad constante, para ello podemos optar por diversas soluciones, en este caso, actualizaremos la posición del misil manualmente en cada frame mediante el componente transform
+
+> **Pro-tip:** Este movimiento también se puede programar usando la api del componente rigidbody, podeis intentarlo en casa bajo la supervisión de un adulto responsable
 
 ```C#
 void Update () {
     Vector3 pos = this.transform.position; //gets current position
     //Since unity 5, you need to use GetComponent to access a component
     //transform component is the exception as every gameobject has it
-    pos.z -= 1; //decrease z (the model is inverted from Z-Axis)
+    pos.z -= 1; //decrease z (the model is inverted in Z-Axis)
     this.transform.position = pos;
     //this.transform.position.z+=1 won't work on Unity 5
 }
@@ -366,7 +368,7 @@ _Update de MissileController.cs_
 
 Si ejecutamos, este código moverá el misil en el eje z a 1 metro por segundo... o no? Como dijimos, el método update se ejecuta a 60 fps, por tanto, movemos el misil a 60 mps... o no?, update no se ejecuta siempre a 60 fps (como ya se dijo), ni cada segundo se ejecuta a la misma velocidad, eso hace que nuestro misil vaya en realidad... a cualquier velocidad.
 
-¿Entonces cómo hacemos que el misil vaya a una velocidad constante? La API de unity posee una variable que podemos usar en Update,`Time.deltaTime` que nos devolverá el tiempo (real) entre el último frame y este, de esta forma, nos vasta con multiplicar nuestro movimiento por esta variable para obtener 1 mps
+¿Entonces cómo hacemos que el misil vaya a una velocidad constante? La API de unity posee una variable que podemos usar en Update, `Time.deltaTime` que nos devolverá el tiempo (real) entre el último frame y este, de esta forma, nos basta con multiplicar nuestro movimiento por esta variable para obtener 1 mps
 
 ```C#
 //...
@@ -398,10 +400,11 @@ Cambiando esta variable podemos mover el misil a distinta velocidad (incluso en 
 **Pro-tip:** Si ponemos la velocidad a 0 en mitad del juego, tendremos un Kylo Ren simulator
 
 > Si se quiere comprobar la condición de que la velocidad siempre sea positiva, se puede usar el evento **OnValidate()** que se ejecuta en el propio editor de Unity:    
+
 ```C#
 void OnValidate(){
-    if (speed < 0F)
-        speed = 0.0F;
+if(speed < 0F)
+	speed=0.0F;
 }
 ```
 _MissileControler.cs_
@@ -410,27 +413,24 @@ Perfecto, tenemos nuestro misil que se mueve solo... sin embargo... solo se muev
 
 >Good job genius, you have a bugged missile
 
-Tenemos que conseguir que el misil se mueve hacia delante, con independencia de su rotación... y para eso necesitamos trigonometría (_Now your math teacher from school is laughing_)
+Tenemos que conseguir que el misil se mueva hacia delante, con independencia de su rotación... y para eso necesitamos trigonometría (_Now your math teacher from school is laughing_)
 
 Por suerte para ti, perezoso estudiante, Unity facilita los cálculos geométricos con su API, para ello, haremos uso de un método de transform para trasladarnos de forma relativa al objeto (en lugar de modificar las variables manualmente) y de la clase **Vector3**, que representa un vector tridimensional:
 
- ```C#
- void Update () {
-     //vector3.forward is the direction in Z-Axis [0,0,1]
-     //speed is negative because the model is inverted
-     transform.Translate(Vector3.forward * Time.deltaTime * -speed); //translate at speed rate in forward direction (local to object)
- }
- ```
+```C#
+void Update () {
+	//vector3.forward is the direction in Z-Axis [0,0,1]
+	//speed is negative because the model is inverted
+	transform.Translate(Vector3.forward * Time.deltaTime * -speed); //translate at speed rate in forward direction (local to object)
+}
+```
 _MissileController.cs: Update method_
 
-Si ejecutamos, veremos que ahora el misil se mueve en la dirección correcta, si en mitad de ejecución rotamos el misil, la dirección cambiará a la correcta, sin embargo, resulta poco realista (giros bruscos) pues no hacemos uso de la física ni aceleraciones (no las necesitaremos, pues este misil va recto)
+Si ejecutamos, veremos que ahora el misil se mueve en la dirección correcta, si en mitad de ejecución rotamos el misil, la dirección cambiará a la correcta, sin embargo, resulta poco realista (giros bruscos) pues no hacemos uso de la física ni aceleraciones (no las necesitaremo porque este misil va recto)
 
-
-> Ahora nos podemos divertir, creando un prefab del misil y poniéndolo en el Level1 apuntando a los barriles
+> Ahora nos podemos divertir creando un prefab del misil y poniéndolo en el Level1 apuntando a los barriles
 
 ![](images/missile_hit.png)
-
-
 
 
 ### Particle System: Cohete
@@ -461,7 +461,7 @@ Si revisamos el componente, vemos varias variables que podemos modificar:
 * **Gravity Modifier:** Gestiona cómo le afecta la gravedad a las partículas, en este caso se encuentra negativa pues el humo sube, sin embargo, nos interesa que sea un humo más recto, por lo que la cambiaremos a -0.01
     * Aunque cambiemos esto, el humo sigue subiendo demasiado (algo más esta afectando a las partículas)
 * **Emission/Rate:** Gestiona la velocidad de emisión de partículas, de momento lo dejamos a 30
-* **Force over Lifetime:** Modifica la fuerza que reciben las partículas constantemente (si nos fijamos, tiene una fuerza en y de l, que explica su comportamiento, podemos cambiarlo a 0 o desactivar todas las fuerzas directamente)
+* **Force over Lifetime:** Modifica la fuerza que reciben las partículas constantemente (si nos fijamos, tiene una fuerza en y de 1, que explica su comportamiento, podemos cambiarlo a 0 o desactivar todas las fuerzas directamente)
 
 ![](images/missile_smoke2.png)
 _Misil con humo configurado_
@@ -483,9 +483,13 @@ void OnCollisionEnter(Collision collision){
 }
 ```
 
+Este método, mostrará en la consola el nombre de cada objeto golpeado
+
 Probemos ahora a ejecutar un misil en Level1:    
 ![](images/missile_hit2.png)
 _Observamos los diversos golpes con el barril y suelo en la consola_
+
+Ahora, queremos que en lugar de mostrar un nombre por la pantalla, el misil "explote" cuando entra en contacto con algo.
 
 Para emular la explosión con física, es necesario aplicar una fuerza a todos los objetos dentro de un radio, dicha fuerza debe disminuir con la distancia... Por suerte, la API de Unity nos salvará (de nuevo) de realizar tediosos cálculos mediante un par de métodos, comenzaremos creando otras dos variables públicas (float) en MissileController (**explosionRadius** y **explosionForce**), después, modificaremos OnCollisionEnter:    
 ```C#
@@ -508,14 +512,14 @@ Este método, detectara todos los colliders en un radio y les aplicará una fuer
 
 > Aunque Unity lo ponga fácil, el método OverlapSphere es costoso, y no sería recomendable aplicarlo en un evento como Update o FixedUpdate
 
-Ejecutemos (por ejemplo, explosionRadius a 5 y explosionForce a 100):
+Cambiemos los valores de las nuevas variables en el Inspector (por ejemplo, explosionRadius a 5 y explosionForce a 100) y ejecutamos:
 ![](images/missile_hit3.png)
 
 Guau! Tenemos un súper-misil, que destroza todo a su paso sin inmutarse, claro, hemos programado los efectos de la explosión, pero ninguna explosión!!
 
-Para la explosión, tendremos 2 pasos:    
+Para implementar la explosión, tendremos que realizr dos acciones:    
 1. Eliminar el misil
-2. Poner en su lugar una explosión (sistema de partículas)
+2. Poner en su lugar una explosión (sistema de partículas y efectos)
 
 El sistema de partículas de explosión de Unity que trae por defecto nos servirá, por tanto es simplemente tocar un poquito el script anterior y adaptar dicho sistema:
 
@@ -532,11 +536,11 @@ public GameObject explosion; //explosion particle system
 }
 ```
 
-En este código, creamos una nueva variable pública que contendrá una referencia a un gameObject (esto puede ser cualquier gameObject de la escena o prefab) y, al finalizar la colisión destruimos el misil (el propio gameObject) e instanciamos la explosión en la posición del misil (Quaternion.identity indica rotación 0). No hay problema en ejecutar destroy antes de instantiate, pues el objeto se destruirá al final del evento `Update`
+En este código, creamos una nueva variable pública que contendrá una referencia a un gameObject (esto puede ser cualquier gameObject de la escena o prefab) y, al finalizar la colisión destruimos el misil (el propio gameObject) e instanciamos la explosión en la posición del misil (Quaternion.identity indica rotación 0). No hay problema en ejecutar destroy antes de instantiate, pues el objeto se destruirá al final de la actualización.
 
 
 
->**Destroy** e **Instantiate** son métodos de la API de Unity que nos permiten destruir e instanciar gameObjects respectivamente, Destroy puede además tener un argumento para indicar tiempo.
+>**Destroy** e **Instantiate** son métodos de la API de Unity que nos permiten destruir e instanciar gameObjects respectivamente, Destroy puede además tener un argumento para indicar tiempo hasta la dstrucción.
 
 Ahora veremos en el componente MissileController otra variable Explosion, aquí podemos añadir cualquier gameObject de la escena o un prefab, en este caso iremos a `Standard Assets/DefaultParticles/Prefabs` y movemos Explosion a dicho componente para asociarlo
 
@@ -547,10 +551,14 @@ _Explosión del misil_
 
 Ya tenemos nuestro misil listo! Ahora podemos crear un prefab de este y usarlo para multitud de cosas.
 
+<div style="page-break-before:always"></div>
+
 ## Jugador
 Nuestro jugador será un gameObject con una física, una cámara y un script que asocie los controles del jugador. Para un jugador FPS sería necesario programar el movimiento de este y la rotación de la cámara. Aunque no es demasiado difícil, y es recomendado más adelante programarlo para conseguir exactamente el efecto deseado, para este tutorial haremos uso de un asset estándar de Unity, que nos permitirá hacer uso de un controlador de jugador en primera persona por defecto para cualquier prototipo de juego que queramos (en la carpeta de assets se encuentra con el nombre `Standard_FPS.unitypackage`, podéis encontrar los assets completos importando los assets estándar de Unity).
 
-Cargamos el prefab `FPSController/Pregabs/FPSController` en la escena, veremos que contiene una cámara y un collider entre otras cosas. Ahora podemos eliminar la Main Camera de la escena (desde ahora veremos con la cámara del jugador), podemos el FPSController en la posición que queramos (podemos renombrarlo como Player y cambiar su tag).
+Cargamos el prefab `FPSController/Prefabs/FPSController` en la escena, veremos que contiene una cámara y un collider entre otras cosas. Ahora podemos eliminar la Main Camera de la escena (desde ahora veremos con la cámara del jugador), ponemos el FPSController en la posición que queramos (podemos renombrarlo como Player y cambiar su tag).
+
+> **Pro-tip:** Podemos tener tantas cámaras como queramos, y mediante animaciones o scripting ir cambiando dichas cámaras, si sólo hay una cámara en escena, Unity la tomará directamente como la cámara por defecto.
 
 Si le damos a play, podremos movernos con las teclas de dirección (y WASD), girar la cámara con el ratón, correr con shift y saltar con space (estos controles se adaptarán automáticamente a mandos o distintas configuraciones). Podremos configurar diversos aspectos del control de este.
 
@@ -620,10 +628,11 @@ void Update(){
 ```
 _Player.cs_
 
-Input.GetButtonDown devolverá true si un botón dado se ha pulsado en ese frame (si se deja pulsado no devolverá true hasta que se suelte y se vuelva a pulsar. Como vemos, no estamos asociando directamente el click del ratón, si no un botón de nombre **"Fire1"**, este es un botón "virtual" de Unity, que posteriormente se asociará a uno o más botones dependiendo del dispositivo (podemos configurar estas asociaciones en `Edit/Project Settings/Input`, Unity ya tiene diversos controles virtuales pregenerados como Fire1, es buena práctica crear controles virtuales y posteriormente configurarlos, de esta forma Fire1 puede ser un botón de ratón, de una consola o incluso de un móvil, Además, el usuario podrá posteriormente configurarlos a su gusto. Por defecto, Fire1 está asociado al click izquierdo del ratón y a ctrl izquierdo.
+Input.GetButtonDown devolverá true si un botón dado se ha pulsado en ese frame (si se deja pulsado no devolverá true hasta que se suelte y se vuelva a pulsar.     
+Como vemos, no estamos asociando directamente el click del ratón, sino un botón de nombre **"Fire1"**, este es un botón "virtual" de Unity, que posteriormente se asociará a uno o más botones dependiendo del dispositivo (podemos configurar estas asociaciones en `Edit/Project Settings/Input`, Unity ya tiene diversos controles virtuales pregenerados como Fire1, es buena práctica crear controles virtuales y posteriormente configurarlos, de esta forma Fire1 puede ser un botón de ratón, de una consola o incluso de un móvil, Además, el usuario podrá posteriormente configurarlos a su gusto. Por defecto, Fire1 está asociado al click izquierdo del ratón y a ctrl izquierdo por defecto.
 
 ### Mejorar disparo de misiles
-Ya podemos jugar y disparar misiles, sin embargo, si hacemos click demasiado rápido, los misiles se disparan más rápido de lo que resulta creíble (suponiendo por creíble disparar misiles de la nada), es preciso limitar esto mediante una variable **FireRate**, para ello, tendremos que recurrir a al temporizador de Unity, para controlar el tiempo entre disparos (volvemos al script):
+Ya podemos jugar y disparar misiles, sin embargo, si hacemos click demasiado rápido, los misiles se disparan más rápido de lo que resulta creíble (suponiendo por creíble disparar misiles de la nada), es preciso limitar esto mediante una variable **FireRate**, para ello, tendremos que recurrir al temporizador de Unity, para controlar el tiempo entre disparos (volvemos al script):
 ```C#
 //...
 public float fireRate=1.0F; //fire rate, default to 1 second
@@ -641,9 +650,11 @@ void Fire(){
 ```
 _Player.cs_
 
-Notemos que aquí ya empezamos a usar variables privadas, que no serán mostradas fuera de la clase. Además, hemos dado un valor por defecto a fireRate de 1, este valor será mostrado en el inspector al principio cuando se cargue el script (cualquier valor que luego cambiemos sobrescribirá este valor por defecto)
+Notemos que aquí ya empezamos a usar variables privadas, que no serán mostradas fuera de la clase. Además, hemos dado un valor por defecto a fireRate de 1, este valor será mostrado en el inspector al principio cuando se cargue el script (cualquier valor que luego cambiemos sobrescribirá este valor por defecto).
 
-> La clase [Time](http://docs.unity3d.com/ScriptReference/Time.html) proporciona mecanismos para conocer temas relativos al tiempo real (segundos desde ejecución, deltaTime etc...) con independencia de frameRates u otras cosas. También nos permitirá hacer algunas modificaciones como cambiar la velocidad del tiempo en ejecución (slow-mo)
+En estos cambios, almacenamos el tiempo actual en el momento de disparar en la variable privada, y solo permitimos disparar de nuevo cuando el tiempo actual sea mayor que el almacenado+fireRate. En el evento Start inicializamos este tiempo a -fireRate, para que desde el comienzo de la partida podamos disparar sin esperar a fireRate.
+
+> La clase [Time](http://docs.unity3d.com/ScriptReference/Time.html) proporciona mecanismos para conocer temas relativos al tiempo real (segundos desde ejecución, deltaTime, etc.) con independencia de frameRates u otras cosas. También nos permitirá hacer algunas modificaciones como cambiar la velocidad del tiempo en ejecución (slow-mo)
 
 Tras jugar un rato disparando misiles, si vamos a la ventana Scene sin parar el juego nos damos cuenta de algo raro...
 
@@ -652,7 +663,7 @@ _Jerarquía tras jugar un rato_
 
 Aunque los efectos de las partículas hayan desaparecido el objeto MissileExplosion (y componentes asociados) siguen existiendo permanentemente, aunque esto no afecta a la jugabilidad, puede afectar enormemente al rendimiento cuando muchos de estos objetos se hayan instanciado a lo largo de una partida.
 
-Para evitar esto, s necesario ir destruyéndolos conforme dejan de ser útiles, podemos hacer esto de diversas formas (por ejemplo, creando un nuevo script en la explosión), sin embargo, los más fácil, es aprovechar el segundo argumento de **Destroy**, que nos permite indicar el tiempo (en segundos) para destruirlo.
+Para evitar esto, será necesario ir destruyéndolos conforme dejan de ser útiles, podemos hacer esto de diversas formas (por ejemplo, creando un nuevo script en la explosión), sin embargo, lo más fácil, es aprovechar el segundo argumento de **Destroy**, que nos permite indicar el tiempo (en segundos) para destruirlo.
 
 Vayamos a MissileController, al crear el objeto (instantiate), podemos obtener una referencia al gameObject creado, para justo después "Destruirlo" con un tiempo suficiente para que la animación finalice:
 
@@ -665,9 +676,11 @@ _MissileControler.cs, método OnCollisionEnter()_
 
 > Instantiate devuelve la superclase Objeto, tenemos que convertirlo explícitamente a GameObject para guardarlo como tal, posteriormente asignamos el evento de destruirlo tras 10 segundos
 
-Tras jugar de nuevo un rato, veremos cómo los objetos van desapareciendo tras un rato, esto dejará un número continuo de objetos a lo largo de la partida, evitando la saturación de objetos inútiles y pérdida de rendimiento
+Tras jugar de nuevo un rato, veremos cómo los objetos van desapareciendo tras un rato, esto dejará un número contínuo de objetos a lo largo de la partida, evitando la saturación de objetos inútiles y pérdida de rendimiento
 
 > Si esta escena fuera al aire libre, sería necesario implementar un mecanismo de destrucción de elementos a cierta distancia del origen (por ejemplo, un collider con un script), para evitar que ocurra el mismo problema que aquí hemos resuelto con misiles u objetos que se alejan indefinidamente de la escena de juego
+
+Es extremadamente importante mantener el número máximo de objetos en escena lo más bajo posible, pues cada objeto deberá ser almacenado en memoria, renderizado, su física calculada etc. Lo mismo se puede aplicar a componentes de objetos (por ejemplo, desactivar la física de un objeto cuando deja de ser necesaria)
 
 ## Mejorar Escena
 Actualmente tenemos una escena jugable, con algunos elementos incorporados, sin embargo, con el fin de mejorar la experiencia de juego, es preciso añadir más elementos y configurar algunos detalles
@@ -675,10 +688,10 @@ Actualmente tenemos una escena jugable, con algunos elementos incorporados, sin 
 ### Iluminación de la escena
 Hasta ahora, hemos trabajado con la iluminación por defecto de Unity, que consiste en una _luz direccional_ y un _skybox_ (background como cielo). 
 
->Importante activar la opción de trabajar con la iluminación de escena para este paso (botón de sol en ventana Scene_
+>Es importante activar la opción de trabajar con la iluminación de escena para este paso (botón de sol en ventana _Scene_)
 
 Estos valores son útiles para escenas al aire libre, sin embargo, como ya se habrá notado, generan efectos poco realistas en escenas de interior como reflejos inexistentes
-![](bad_reflections.png)
+![](images/bad_reflections.png)
 _Reflejos "irreales"_
 
 Los skyboxes son usados por Unity no solo para generar un background, si no para generar unos reflejos automáticos (lo que hace estos reflejos irreales en nuestra escena), comenzaremos desactivando esta iluminación y reflejos por defecto:
@@ -686,11 +699,11 @@ Los skyboxes son usados por Unity no solo para generar un background, si no para
 2. Ir a **Window/Lightning** y seleccionar **Reflection Source: Custom** para desactivar los reflejos de skybox
 3. En **Windows/Lightning** cambiar Ambient Source a **Color** y modificar el color a un gris oscuro
 ![](images/no_reflection.png)
-_Escena sin reflejos_
+_Escena sin iluminación_
 
 
 **Tipos de Luces:**    
-Para Iluminar una escena, es necesario conocer las luces por defecto de Unity (y cualquier motor gráfico 3D):
+Para Iluminar una escena, es necesario conocer las luces que podemos usar en Unity (y en cualquier motor gráfico 3D):
 * **Directional Light:** Una luz que se encuentra en una posición "infinita" e ilumina todos los objetos por igual en dicha dirección (por ejemplo, el sol en un juego)    
 ![](images/direction_light.png)
 * **Point Light:** Luz puntual, que ilumina los objetos a su alrededor dependiendo de la distancia a ellos (por ejemplo, una bombilla)    
@@ -709,7 +722,7 @@ _Escena con reflejos de luz puntual_
 
 > Como se ve comparando las 2 imágenes, la iluminación es un paso importante para generar escenarios realistas y aprovechar las texturas, además de poseer un impacto en el rendimiento.
 
-Los reflejos de alta calidad en las texturas no los genera Unity ni ninguna brujería, son producto de los **Mapas de normales** que incluimos en las texturas al principio, ahora con una iluminación realista apreciamos más su utilidad:
+Los reflejos de alta calidad en las texturas no los genera Unity, ni ninguna brujería, son producto de los **Mapas de normales** que incluimos en las texturas al principio, ahora con una iluminación realista apreciamos más su utilidad:
 
 ![](images/normal_map_light1.png)
 _Escena con normal maps_
@@ -718,10 +731,10 @@ _Escena con normal maps_
 _Escena sin normal maps_
 
 **Sombras:**
-La Iluminación y la generación de sombras son dos cosas separadas en el procesamiento gráfico, por defecto en Unity las luces no producen sombras (mucho más eficiente), pero podemos activarlas fácilmente con la opción **Shadow Type**  (Soft shadow suaviza)
+La Iluminación y la generación de sombras son dos cosas separadas en el procesamiento gráfico, por defecto en Unity las luces no producen sombras (mucho más eficiente), pero podemos activarlas fácilmente con la opción **Shadow Type**  (seleccionando soft shadow o hard shadows)
 
 ![](images/no_shadows.png)
-_Sombras desactivadas:
+_Sombras desactivadas_
 
 ![](images/soft_shadows.png)
 _Sombras activadas_
@@ -731,16 +744,16 @@ Cada luz puede o no producir sombras (tener en cuenta el rendimiento), además, 
 Para nuestra escena, vamos a crear un par de luces aumentando el **Range** a 100 para iluminar el piso inferior y superior (no poner luz en el cuarto cerrado), activar las sombras en ambas luces
 
 
-> Es posible, además, generar **Baked Lightning**, que nos permitirá "pegar" las sombras y luces como si fueran texturas pre-calculándolas, para ahorrar cálculos en aquellas luces que no se moverán nunca (se verá más adelante cómo hacerlo)
+> Es posible, además, generar **Baked Lightning**, que nos permitirá "pegar" las sombras y luces como si fueran texturas pre-calculándolas, para ahorrar cálculos en aquellas luces que no se moverán nunca
 
 Unity además, es capaz de generar las sombras en tiempo real, pudiendo actualizarlas cuando una luz o un objeto se mueven
 
 ![](images/shadow_explosion.png)
 _Sombras en una explosión_
 
-Incluso, para mejorar el efecto de explosión, podemos añadir una luz al prefab de explosión y cambiar su intensidad con un script ([API de Light](http://docs.unity3d.com/Manual/class-Light.html))
+Incluso, para mejorar el efecto de explosión, podemos añadir una luz al prefab de explosión y cambiar su intensidad con un script usando la [API de Light](http://docs.unity3d.com/Manual/class-Light.html)
 
-Con eso obtendríamos efectos más espectaculares:
+Con eso podemos obtener efectos más espectaculares:
 ![](images/explosion_light.png)
 _Explosión con iluminación propia_
 
@@ -750,9 +763,9 @@ Como hemos visto, las partículas sirven para muchas cosas, entre las partícula
 
 1. Crear cubo3D y escalarlo a [0.5,0.5,0.5]
 2. Cargar un FireComplex como hijo encima del cubo
-3.  Crear un material nuevo (por ejemplo, con el pattern 173 y albedo a color grisáceo) y texturizar el cubo
-4. Eliminar los subobjetos SmokeLit y SmokeDark (no pondremos el humo)
-4.  Crear Prefab de todo
+3. Crear un material nuevo (por ejemplo, con el pattern 173 y albedo a color grisáceo) y texturizar el cubo
+4. Eliminar los subobjetos SmokeLit y SmokeDark (el humo no se aprecia en ambientes oscuros)
+5. Crear Prefab de todo
 
 > Hay que tener cuidado al usar este prefab, aunque es muy fácil poner muchos fuegos, cada prefab en la escena consiste en un conjunto de sistemas de partículas y una nueva iluminación
 
@@ -791,9 +804,9 @@ Queremos incluir sonidos en las explosiones y música ambiental, para ello hay q
 ### Música
 Comenzaremos cargando una música de fondo, para ello, crearemos una carpeta Audio/Music y cargaremos (arrastrando) los archivos .mp3 de los assets (u otra música).
 
-Comenzamos creando un nuevo GameObject `Audio/Audio Source` (recordemos que ya tenemos un Audio Listener). Como vemos en la configuración del componente Audio Source, tenemos una variable **AudioClip** para incluir un archivo de audio, también vemos marcada la opción **Play On Awake**, que reproducirá el sonido al comenzar entre otras.
+Creamos un nuevo GameObject `Audio/Audio Source` (recordemos que ya tenemos un Audio Listener). Como vemos en la configuración del componente Audio Source, tenemos una variable **AudioClip** para incluir un archivo de audio, también vemos marcada la opción **Play On Awake**, que reproducirá el sonido al comenzar entre otras.
 
-Cargamos uno de los archivos de música a **AudioClip** y ejecutamos, como vemos, empieza a sonar la música, sin embargo, nos gustaría incluir más de una canción en nuestra "lista de reproducción", para ello, desactivamos la opción Play On Awake y quitamos el Clip que haya y creamos un nuevo script **MusicController**como componente:
+Cargamos uno de los archivos de música a **AudioClip** y ejecutamos,empezará a sonar la música, sin embargo, nos gustaría incluir más de una canción en nuestra "lista de reproducción", para ello, desactivamos la opción Play On Awake,quitamos el Clip que haya y creamos un nuevo script **MusicController** como componente de ese mismo objeto:
 
 ```C#
 public class MusicController : MonoBehaviour {
@@ -842,20 +855,21 @@ Ya está!, Al tener todos los prefabs bien montados, basta con asignar este comp
 
 Sin embargo, el sonido del misil suena siempre igual, con independencia de a donde explote (lejos,cerca,adelante atrás, y obviamente no vamos a jugar a este juego si los sonidos no suenan en nuestro flamante 3.1, 5.1 o 18.1)
 
-Esto es a lo que se llaman _"sonido 3D"_, es decir, el volumen y dirección del sonido dependerá de nuestra posición. Por defecto, el sonido es 2D (como la música) de forma que siempre suena igual. Para configurarlo, basta con modificar la variable **Spatial Blend** Moviéndolo de 2D a 3D (o en medio) en nuestro componente Audio Source.
+Esto es a lo que se llama _"sonido 3D"_, es decir, el volumen y dirección del sonido dependerá de nuestra posición. Por defecto, el sonido es 2D (como la música) de forma que siempre suena igual. Para configurarlo, basta con modificar la variable **Spatial Blend** Moviéndolo de 2D a 3D (o en medio dependiendo de cuanto quieras que afecte) en nuestro componente Audio Source.
 
 > En este punto, habrá que reducir un poco el volumen de la música (en el componente Audio del objeto de música) pues los sonidos 3D tienden a escucharse menos. También podemos editar las opciones 3D Sound Settings del audio de la explosión, aumentando la Min Distance
 
-Finalmente, podemos añadir otro componente Audio source (configurado de forma similar al anterior) al prefab `KHC Missile` y cargarle el sonido Missile
+Finalmente, podemos añadir otro componente Audio source (configurado de forma similar al anterior) al prefab `KHC Missile` y cargarle el sonido Missile para conseguir un sonido a cohete
 
+<div style="page-break-before:always"></div>
 
 ## Mejorar Rendimiento
 En Unity (y cualquier motor de renderizado 3D de alto nivel) es relativamente fácil (dados los assets adecuados) crear una escena con una "buena apariencia", sin embargo, es más complicado conseguir un rendimiento adecuado para un juego manteniendo dicha apariencia
 
-Un videojuego, a diferencia de una animación, se debe renderizar al mismo tiempo que se ejecuta (30~60 fps), a esto hay que incluir un coste extra en cálculo de física, lógica del juego, algoritmos (IA) e interacción del usuario. Además, la plataforma sobre la que se ejecutará puede ser muy diverso (PC, Móvil, Web). Veremos algunas formas de mejorar algunas partes principales de nuestro juego:
+Un videojuego, a diferencia de una animación, se debe renderizar al mismo tiempo que se ejecuta (30~60 fps), a esto hay que incluir un coste extra en cálculo de física, lógica del juego, algoritmos (IA) e interacción del usuario. Además, las plataformas sobre la que se ejecutará pueden ser muy diversas (PC, Móvil, Web), pudiendo no ser adecuada para un renderizado costoso. Veremos brevemente algunas formas de mejorar algunas partes principales de nuestro juego:
 
 ### Renderizado
-El proceso de renderizado (pintar nuestra escena) consume gran parte de nuestros recursos, aunque este proceso se encuentra optimizado para GPUs, sistemas con poca capacidad gráfica (móviles y portátiles) enseguida tendrán problemas. Aparte de estos tips, encontrarás muchas opciones en el [Manual de Unity](http://docs.unity3d.com/Manual/OptimizingGraphicsPerformance.html)
+El proceso de renderizado (pintar nuestra escena) consume gran parte de nuestros recursos, aunque este proceso se encuentra optimizado para GPUs, sistemas con poca capacidad gráfica (móviles y portátiles) enseguida tendrán problemas. Aparte de estos tips, encontrarás muchos consejos en el [Manual de Unity](http://docs.unity3d.com/Manual/OptimizingGraphicsPerformance.html)
 
 1. En `Edit/Project Settings/Quality` podremos configurar la calidad general del renderizado y sombras, además, podemos configurar distintos tipos de calidad dependiendo del dispositivo
 2. Todos los objetos del juego tienen una opción **static** esta opción indica a Unity que dicho objeto no se moverá, y permitirá realizar diversas optimizaciones (como pre-calcular la posición final), además, será necesario tener objetos _static_ para que algunas optimizaciones más adelante tengan efecto.
@@ -864,25 +878,25 @@ Es buena práctica agrupar objetos estáticos (paredes, luces etc...) y marcarlo
 3. Desactivar las opciones **Cast Shadows** y **Receive Shadows** en los meshes cuando sea posible.
 	* Aunque queramos usar sombras en nuestro juego, muchos objetos no las necesitan, además, objetos como el suelo nunca arrojarán sombras, desactivar cuando sea posible
 	* Evitar el uso de reflejos (Blend Probes) cuando no sea necesario
-4. Desactivar totalmente las sombras cuando no sean necesarias. Aunque quedan bien, muchos juegos directamente no usan sombras, ahorrando gran cantidad de proceso (sobre todo en móviles)
+4. Desactivar totalmente las sombras cuando no sean necesarias. Aunque quedan bien, muchos juegos directamente no usan sombras, ahorrando gran cantidad de recursos (sobre todo en móviles).
 5. Usar modelos de pocos polígonos. Rara vez es necesario modelos muy detallados, simplificar las mallas con programas externos si es necesario
 	* Muchos de los efectos de las mallas con detalles como arrugas o dibujos se pueden emular con materiales (normal maps).
 6. Cambiar los shaders (materiales) por versiones `Mobile` cuando sea posible para dispositivos con pocos recursos
 7. Evitar demasiados objetos en la escena (y en la cámara)
 8. Reducir la calidad de las luces si es posible
 9. Generar **LightMaps** (`Views/Lightning`) cambiando las variables de **Baking** en algunas luces a **Baked** o **Mixed**. Esta técnica, renderizará las luces como texturas en los objetos estáticos (**Baking**) generando unas sombras de gran calidad que no tienen que ser procesadas a tiempo real. Esta técnica, sin embargo, impedirá generar sombras a tiempo real.    
-	![](realtime.png)     
+	![](images/realtime.png)     
 	_Luces a tiempo real_
-	![](baked.png)    
+	![](images/baked.png)    
 	_Luces con lightmaps_    
 10. Eliminar objetos fuera de escena (muy alejados) o inútiles, evitar llenar la jerarquía de objetos vacíos.
 
 ### Física
-Junto con el renderizado, la física de un juego puede consumir gran cantidad de recursos, podemos acceder a la configuración de la física en `Edit/Project Settings/Physics`
-1. Eliminar Rigidbody y Colliders de los objetos que nó sea necesario
-2. Simplificar los Colliders lo máximo posible (evitar Mesh Collider)
-3. Si el juego es 2D (o su mecánica lo es) usar los componentes rigidbody2D, collider2D etc...
-4. Usar Layers para interacciones independientes
+Junto con el renderizado, la física de un juego puede ser una de las principales causas de un bajo rendimiento, podemos acceder a la configuración de la física en `Edit/Project Settings/Physics`
+1. Eliminar Rigidbody y Colliders de los objetos en los que no sea necesario.
+2. Simplificar los Colliders lo máximo posible (evitar Mesh Collider).
+3. Si el juego es 2D (o su mecánica lo es) usar los componentes rigidbody2D, collider2D etc.
+4. Usar Layers para interacciones independientes.
 
 ### Scripting
 Malos scripts suelen afectar enormemente al rendimiento. Estos scripts se ejecutan en CPU y Unity es incapaz de realizar optimizaciones automáticas.
@@ -893,57 +907,23 @@ Malos scripts suelen afectar enormemente al rendimiento. Estos scripts se ejecut
 3. Programar las interacciones con Rigidbody en FixedUpdate, no en Update
 4. Usar correctamente los eventos proporcionados por Unity (mirar la documentación)
 5. Evitar GetComponent u operaciones pesadas en Update si es posible (ponerlas en Start)
-6. Evitar Destruir/Instanciar objetos si hay otras opciones (Disable/Enable)
+6. Evitar Destruir/Instanciar objetos continuamente salvo que sea permanente (usar Disable/Enable)
 7. Crear correctamente la jerarquía para minimizar la profundidad del árbol y poder gestionar los objetos por "bloques"
 8. Usar animaciones en lugar de programación compleja
 9. Usar eventos e Invoke en lugar de constantes comparaciones en Update
 10. Programar scripts desde 0 si el comportamiento es simple en lugar de scripts complejos ya creados (por ejemplo, el FPS Controller)
 
 ### Otras mejoras
-1. Comprobar la compresión de texturas y audio para reducir el espacio necesario
+1. Comprobar la compresión de texturas y audio para reducir el espacio necesario (importante en móvil)
 2. Reutilizar materiales y modelos cuando sea posible
-3. Configurar la carga de audio (poner a streaming sonidos que no se repetirán demasiado como la música para reducir coste en memoria)
+3. Configurar la carga de audio (poner a streaming sonidos que no se repetirán demasiado como la música para reducir consumo de memoria)
 4. Usar prefabs para instanciar diversos objetos iguales en lugar de clone
 5. Mirar el manual de Unity para [optimización en dispositivos móviles](http://docs.unity3d.com/Manual/MobileOptimizationPracticalGuide.html)
 
+<div style="page-break-before:always"></div>
 
 # Para mejorar el proyecto
 A continuación, se elabora brevemente algunos aspectos que pueden servir para continuar el proyecto y mejorarlo
-
-
-## Enemigos
-Los enemigos consistirán en agentes independientes de nuestro jugador, por tanto, serán GameObjects, movidos por un script (o más) que definirán su comportamiento. Implementar enemigos con "inteligencia" es una tarea compleja y que requiere mucho tiempo, sin embargo, algunas herramientas de Unity nos permitirán facilitar esta tarea y, al menos, sentar unas primeras bases sobre enemigos.
-
-### Creación de prefab básico
-Comenzaremos creando un objeto cápsula que representará nuestros enemigos (al menos hasta que tengamos un modelo), le cambiaremos el nombre a Enemy, y crearemos un script **EnemyController** con el que definiremos su comportamiento, añadimos también un rigidbody con la opción **Is Kinematic** para que no se mueva por la física y creamos un prefab de todo.
-
-Editamos el script enemy añadiendo el método **OnCollisionEnter**:    
-```C#
-	void OnCollisionEnter(Collision collision){
-		if(collision)
-		Destroy (this.gameObject);
-	}
-```
-_EnemyController.cs_
-
-De esta forma, el enemigo morirá (será destruido) si hay alguna colisión con cualquier objeto con el tag _"Missile"_, la comprobación es importante para que no le afecten choques con otros objetos. Ahora, tendremos que cambiar el **Tag** del misil, para ello, vamos al prefab, y pinchamos bajo el nombre en Tag/Add Tag
-
-![](images/tag.png)
-
-![](images/tags2.png)
-_Menú de Tags & Layers_
-
-Los tags y layers nos sirven para agrupar objetos dentro de un tipo, cada objeto pertenece a un tag y una layer, por defecto, Unity trae diversos tags, pero podemos añadir más pinchando en el botón +. Creamos un nuevo tag "Missile" y se lo asignamos al prefab KHC Missile.
-
-De esta forma, si hiciéramos más misiles distintos, o instanciaramos distintos nombres, todos aquellos con el tag missile, afectarán por igual a nuestro enemigo (podemos aprovechar y crear otro tag Enemy)
-
-Si ejecutamos y disparamos a la cápsula veremos que esta desaparece en un humo.
-
-### Navigation
-El enemigo ya "muere", sin embargo, un enemigo estático es muy aburrido. Queremos que el enemigo se mueva por el escenario, para ello, haremos uso de la navegación de Unity y de **Navmesh**
-
-**TO DO**     
-
 
 ## Mejorar Jugador
 Nuestro objetivo a continuación será implementar nuevas funcionalidades clásicas de un FPS (vida, armamento, etc...), podríamos empezar a programarlas directamente en el script Player.cs que tenemos, sin embargo, a la larga acabaremos con un script enorme y dificil de programar.
@@ -977,7 +957,7 @@ Por tanto, comenzamos volviendo a Level1, eliminando el objeto Gun de Player, y 
 ![](images/fps_rocket.png)
 _Vista del jugador_
 
-A continuación ,creamos un nuevo script Player y lo ponemos en Player (Playerception), y movemos el contenido de MissileLauncher::Update a este nuevo script.
+A continuación, creamos un nuevo script Player y lo ponemos en Player (Playerception), y movemos el contenido de MissileLauncher::Update a este nuevo script.
 
 Por supuesto, Player no sabe lo que es Fire, es necesario conectar ambos scripts de alguna forma. Aunque hay diversas formas de comunicar distintos objetos en Unity (paso de mensajes, eventos...) en nuestro caso optaremos por una solución relativamente simple y eficiente: 
 Comenzamos por poner como público el método Fire de MissileLauncher (`public void Fire()`, luego editamos el script de Player
@@ -998,23 +978,18 @@ public class Player : MonoBehaviour {
 ```
 _Player.cs_
 
-Nótese que la clase que hemos hecho antes,  actúa como un componente, y es posible acceder a sus métodos y variables. Los métodos **GetComponent** y **GetComponentInChildren** nos permite hacer una búsqueda entre los componentes del propio objeto y del objeto e hijos respectivamente. Buscar GameObjects y Componentes require (internamente) buscar en árboles de jerarquía, por tanto, es recomendable evitar usar estos métodos en Update, almacenando las referencias en Start cuando sea posible.
+Nótese que la clase que hemos hecho antes,  actúa como un componente, y es posible acceder a sus métodos y variables. Los métodos **GetComponent** y **GetComponentInChildren** nos permiten hacer una búsqueda entre los componentes del propio objeto y del objeto e hijos respectivamente. Buscar GameObjects y Componentes require (internamente) buscar en árboles de jerarquía, por tanto, es recomendable evitar usar estos métodos en Update, almacenando las referencias en Start cuando sea posible.
 
 > **Pro Tip:** Aunque hemos dado un paso en el diseño y modularización de nuestros scripts, sería posible hacer una clase abstracta Weapon, de forma que MissileLauncher herede de esta. De esta forma podremos reutilizar todo el código compartido entre armas y facilitar el aumento del arsenal.
 
 
-### Scripting: Vida y objetos
-Ahora, pasamos a crear el comportamiento de Player en el script, recordemos que el movimiento a se encuentra implementado, ahora programaremos aspectos como vida, armas etc...
-
-**TO DO**
-
 ### Armas: Ametralladora
-La ametralladora, disparará de forma instantánea, dañando al enemigo si golpea.
+La ametralladora, disparará de forma instantánea, dañando al enemigo si golpea (sin proyectil real)
 
-1. Importamoes el paquete M4A1, que contiene el modelo de la Ametralladora
+1. Importamos el paquete M4A1, que contiene el modelo de la Ametralladora
 2. Cargamos el prefab del paquete y lo redimensionamos
 3. Crear gunPoint en la punta del armas
-4. Asignar script Gun
+4. Asignar nuevo script Gun
 5. Crear gunFlare, a partir de particulas Sparks (quitar loop)
 6. Crear una **PointLight** que simulará la luz generada por el disparo en, ponerla como hijo del arma en la punta
     * Cambiar el Rango a 1.2 aproximadamente
@@ -1028,44 +1003,74 @@ La ametralladora, disparará de forma instantánea, dañando al enemigo si golpe
 //Simple Gun Class. We will improve this using inheritance
 public class Gun : MonoBehaviour {
 	public int damage=1;
-    public int defaultAmmo;
 	public float range=100;
 	public Transform gunPoint; //Point of the gun
 	public GameObject gunFlare; //Particles when colliding
-
-    private int ammo; //current ammunition of gun
     
     void Start(){
-        ammo=defaultAmmo;
     }
 
 	//Will be called when firing
 	public void Fire(){
-        if(ammo>0){ //Will only fire if there is ammo
-            ammo--;
-    		Vector3 fwd=this.transform.TransformDirection (Vector3.forward);
-    		//Debug.DrawRay(gunPoint.position,gunPoint.forward*range,Color.red,1000000); //Show the raycast
-    		RaycastHit objectHit; //Hit of the raycast
-    		if (Physics.Raycast(gunPoint.position, gunPoint.forward, out objectHit, range)) //Do raycast, enter if raycast collides something
-    		{
-    			GameObject gf=Instantiate(gunFlare,objectHit.point,Quaternion.identity) as GameObject; //Ccreate the sparks
-    			Destroy (gf,10); //Destroy particles after 10 seconds
-    			if(objectHit.transform.tag=="Enemy") SendMessageUpwards("Hit",damage); //If object hit is an Enemy, send message Hit with damage
-    		}
-    	}
-    }
-    //gets weapon ammo
-    public int getAmmo(){
-        return ammo;
-    }
-    public void addAmmo(int bullets){
-        ammo+=bullets;
+    	Vector3 fwd=this.transform.TransformDirection (Vector3.forward);
+    	//Debug.DrawRay(gunPoint.position,gunPoint.forward*range,Color.red,1000000); //Show the raycast
+    	RaycastHit objectHit; //Hit of the raycast
+    	if (Physics.Raycast(gunPoint.position, gunPoint.forward, out objectHit, range)) //Do raycast, enter if raycast collides something
+    	{
+    		GameObject gf=Instantiate(gunFlare,objectHit.point,Quaternion.identity) as GameObject; //Ccreate the sparks
+    		Destroy (gf,10); //Destroy particles after 10 seconds
+    		if(objectHit.transform.tag=="Enemy") SendMessageUpwards("Hit",damage); //If object hit is an Enemy, send message Hit with damage
+   		}
     }
 }
 ```
 _Gun.cs_
 
+Este script usa la técnica de Raycasting para obtener el objeto con el que colisiona el disparo, Raycasting es extremadamente útil para implementar cualquier clase de "picking"
 
+El método SendMessageUpdwards envía un evento al objeto disparado (si su tag es "Enemy"), de esta forma podemos implementar el daño del enemigo en un método `void Hit()` en un script (**Aviso:** SendMessage es lento, se pueden usar otras técnicas más eficientes
+
+## Enemigos
+Los enemigos consistirán en agentes independientes de nuestro jugador, por tanto, serán GameObjects, movidos por un script (o más) que definirán su comportamiento. Implementar enemigos con "inteligencia" es una tarea compleja y que requiere mucho tiempo, sin embargo, algunas herramientas de Unity nos permitirán facilitar esta tarea y, al menos, sentar unas primeras bases sobre enemigos.
+
+### Creación de prefab básico
+Comenzaremos creando un objeto cápsula que representará nuestros enemigos (al menos hasta que tengamos un modelo), le cambiaremos el nombre a Enemy, y crearemos un script **EnemyController** con el que definiremos su comportamiento, añadimos también un rigidbody con la opción **Is Kinematic** para que no se mueva por la física y creamos un prefab de todo.
+
+Editamos el script enemy añadiendo el método **OnCollisionEnter**:    
+```C#
+	void OnCollisionEnter(Collision collision){
+		if(collision)
+		Destroy (this.gameObject);
+	}
+```
+_EnemyController.cs_
+
+De esta forma, el enemigo morirá (será destruido) si hay alguna colisión con cualquier objeto con el tag _"Missile"_, la comprobación es importante para que no le afecten choques con otros objetos. Ahora, tendremos que cambiar el **Tag** del misil, para ello, vamos al prefab, y pinchamos bajo el nombre en Tag/Add Tag
+
+![](images/tag.png)
+
+![](images/tags2.png)
+_Menú de Tags & Layers_
+
+Los tags y layers nos sirven para agrupar objetos dentro de un tipo, cada objeto pertenece a un tag y una layer, por defecto, Unity trae diversos tags, pero podemos añadir más pinchando en el botón +. Creamos un nuevo tag "Missile" y se lo asignamos al prefab KHC Missile.
+
+De esta forma, si hiciéramos más misiles distintos, o instanciaramos distintos nombres, todos aquellos con el tag missile, afectarán por igual a nuestro enemigo (podemos aprovechar y crear otro tag Enemy)
+
+Si ejecutamos y disparamos a la cápsula veremos que esta desaparece entre el humo.
+
+### Navigation
+El enemigo ya "muere", sin embargo, un enemigo estático es muy aburrido. Queremos que el enemigo se mueva por el escenario, para ello, haremos uso de la navegación de Unity y de **Navmesh**
+
+Los navmesh nos permitirán implementar de forma fácil y eficiente un algoritmo de **pathfinding** en nuestra escena, de forma que será relativamente facil implementar enemigos con cierta "inteligencia"
+
+> No Acabado
+
+<div style="page-break-before:always"></div>
+
+* Guía escrita por: @demiurgosoft <demiurgosoft@hotmail.com>
+* Dirección original del proyecto: <https://github.com/demiurgosoft/codename_sting>
+* El Copyright de los assets usados se encuentra junto con los assets
+* Este texto, imágenes y textos asociados se encuentran bajo licencia CC-BY-SA salvo que se especifique lo contrario
 <center>
 ![cc-by-sa](images/cc-by-sa.png)
 </center>
