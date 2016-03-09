@@ -1,6 +1,6 @@
 Codename_Sting
 ==============
-Introducción a Unity 3D mediante la realización de un shooter clásico
+Introducción a Unity 3D mediante la realización de un shooter clásico como parte de [Miercoles Geek](https://github.com/iblancasa/miercolesgeek) 
 ![Imagen chula](https://github.com/demiurgosoft/codename_sting/raw/master/images/explosion_light.png)
 
 Archivos del taller:
