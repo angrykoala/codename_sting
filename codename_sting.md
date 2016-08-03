@@ -3,7 +3,7 @@
 Codename_Sting
 ===============
 **Desarrollo de un FPS con Unity**    
-_Andrés Ortiz Corrales - @demiurgosoft_ 
+_Andrés Ortiz Corrales - @angrykoala_ 
 
 
 ![](images/explosion_light.png)    
@@ -1065,8 +1065,8 @@ Los navmesh nos permitirán implementar de forma fácil y eficiente un algoritmo
 
 <div style="page-break-before:always"></div>
 
-* Guía escrita por: @demiurgosoft <demiurgosoft@hotmail.com>
-* Dirección original del proyecto: <https://github.com/demiurgosoft/codename_sting>
+* Guía escrita por: @angrykoala <angrykoala@outlook.es>
+* Dirección original del proyecto: <https://github.com/angrykoala/codename_sting>
 * El Copyright de los assets usados se encuentra junto con los assets
 * Este texto, imágenes y textos asociados se encuentran bajo licencia CC-BY-SA salvo que se especifique lo contrario
 <center>
