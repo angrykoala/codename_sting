@@ -52,7 +52,7 @@ Todo lo que usemos en nuestro juego serán gameObjects, cada gameObject, sin emb
 * **Transform:** Es el único componente que se encuentra en todos los gameObjects, define la posición, rotación y escala del objeto, así como su posición en la jerarquía de la escena
 * **Mesh Filter && Mesh Renderer:** Estos dos componentes obtendrán un mesh de los assets y lo renderizarán en pantalla junto con las texturas necesarias
 * **Rigidbody3D:** Incorpora el elemento al motor físico, de forma que le afectan las fuerzas (usar _rigidbody2D_ para objetos juegos 2D)
-* **Collider:** Hay diversos colliders distntos, se encargan de detección de colisiones entre objetos (usar _collider2D_ en juegos 2D)
+* **Collider:** Hay diversos colliders distintos, se encargan de detección de colisiones entre objetos (usar _collider2D_ en juegos 2D)
 * **Camera:** Define una cámara del juego
 * **Light:** Define una luz
 * **Audio Source:** Define un origen de Audio
