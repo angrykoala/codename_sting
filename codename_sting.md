@@ -515,7 +515,7 @@ Cambiemos los valores de las nuevas variables en el Inspector (por ejemplo, expl
 
 Guau! Tenemos un súper-misil, que destroza todo a su paso sin inmutarse, claro, hemos programado los efectos de la explosión, pero ninguna explosión!!
 
-Para implementar la explosión, tendremos que realizr dos acciones:    
+Para implementar la explosión, tendremos que realizar dos acciones:    
 1. Eliminar el misil
 2. Poner en su lugar una explosión (sistema de partículas y efectos)
 
@@ -589,7 +589,7 @@ _Player.cs_
 
 Puesto que el prefab missile ya posee el comportamiento del misil (movimiento y explosión), esto se ejecutará automáticamente en el momento de instanciarlo. Para probarlo, llamamos a Fire desde Start (lo que disparará un misil al comienzo de la partida). Recordemos poner el misil en la variable Missile de Player!!
 
-Si ejecutamos, vemos que ocurre una explosión extraña, y no vemos ningún misil... Tras golpearnos la cabeza con la pared varías veces, podremos ver que el problema reside en que el misil "choca" con nuestro jugador (al fin y al cabo, a sido instanciado en su misma posición), de hecho, tiene sentido instanciar el misil en otro sitio (por ejemplo, lo que sería la mano del jugador). Para hacer esto, creamos un nuevo objeto vacío y lo colocamos como hijo de nuestro **FirstPersonCharacter** (así girará con nuestra cámara), en una posición donde queramos instancia el misil (fuera del collider del jugador). Podemos llamar a este objeto `Gun`
+Si ejecutamos, vemos que ocurre una explosión extraña, y no vemos ningún misil... Tras golpearnos la cabeza con la pared varías veces, podremos ver que el problema reside en que el misil "choca" con nuestro jugador (al fin y al cabo, ha sido instanciado en su misma posición), de hecho, tiene sentido instanciar el misil en otro sitio (por ejemplo, lo que sería la mano del jugador). Para hacer esto, creamos un nuevo objeto vacío y lo colocamos como hijo de nuestro **FirstPersonCharacter** (así girará con nuestra cámara), en una posición donde queramos instancia el misil (fuera del collider del jugador). Podemos llamar a este objeto `Gun`
 
 En nuestro código de Player, haremos algunas modificaciones, en lugar de Instanciar en la posición de Player, queremos instanciar exactamente en la posición de Gun. Para ello, crearemos una variable pública **Transform** (recordemos que transform es el componente con la posición) y sustituimos this.transform por dicha variable, también instanciaremos en la dirección de gun, así dispararemos en la dirección que tengamos a player:
 
