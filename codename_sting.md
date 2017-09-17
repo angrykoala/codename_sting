@@ -52,7 +52,7 @@ Todo lo que usemos en nuestro juego serán gameObjects, cada gameObject, sin emb
 * **Transform:** Es el único componente que se encuentra en todos los gameObjects, define la posición, rotación y escala del objeto, así como su posición en la jerarquía de la escena
 * **Mesh Filter && Mesh Renderer:** Estos dos componentes obtendrán un mesh de los assets y lo renderizarán en pantalla junto con las texturas necesarias
 * **Rigidbody3D:** Incorpora el elemento al motor físico, de forma que le afectan las fuerzas (usar _rigidbody2D_ para objetos juegos 2D)
-* **Collider:** Hay diversos colliders distntos, se encargan de detección de colisiones entre objetos (usar _collider2D_ en juegos 2D)
+* **Collider:** Hay diversos colliders distintos, se encargan de detección de colisiones entre objetos (usar _collider2D_ en juegos 2D)
 * **Camera:** Define una cámara del juego
 * **Light:** Define una luz
 * **Audio Source:** Define un origen de Audio
@@ -312,7 +312,7 @@ Un script típico de Unity implementa la superclase MonoDevelop, esta clase pose
     * Existe el evento **Awake** que se llamará antes de Start, pero no garantiza que otros objetos estén cargados
 * **Update:** Será llamado en cada fotograma de renderizado (30~60 fps) **no** se garantiza las veces que será llamado en cada segundo, y dependerá de la configuración y del sistema final (puede llamarse 1 o 120 veces), importante evitar cálculos pesados en este evento (se realizarán muchas veces), útil para actualizar valores y gestionar aspectos de las transformadas o interacción del usuario
     * **LateUpdate:** Igual que update, pero se llama **después** de cada renderizado, útil para trabajar con cambios en la cámara
-* **FixedUpdate:** Será llamado en cada paso de cálculo de física, esto son 10fps por defecto (puede depender de la configuración de la máquina), fixed update **si** se ejecuta a una velocidad constante (aunque varía en función de la configuración), además coincide con la ejecución de los cálculos físicos. Útil para cualquier cálculo relacionado con física y colliders.    
+* **FixedUpdate:** Será llamado en cada paso de cálculo de física, esto son 10fps por defecto (puede depender de la configuración de la máquina), fixed update **sí** se ejecuta a una velocidad constante (aunque varía en función de la configuración), además coincide con la ejecución de los cálculos físicos. Útil para cualquier cálculo relacionado con física y colliders.    
     * **Update vs FixedUpdate:** Un cambio en la API de Unity (por ejemplo, cambiar posición o acelerar un objeto) no surtirá efecto hasta el paso de renderizado, eso quiere decir que cualquier cambio gráfico (incluido Transform) tendrá efecto en el paso Update, mientras que los cambios físicos **sólo** surtirán efecto en los pasos de FixedUpdate. Realizar cambios de rigidbody en update no tendrá efecto durante varias llamadas (produciendo una sobrecarga innecesaria en los cálculos) y tendrá peores resultados (desincronización).
 * **OnCollisionEnter:** Se ejecutará cuando se detecte una colisión (solo se ejecutará una vez por colisión), para que se ejecute este evento, ambos objetos deberán tener colliders (no activados a trigger) y al menos uno un rigidbody. On CollisionEnter se ejecutará en ambos objetos
     * OnCollisionEnter posee un argumento de entrada **Collision** con información sobre la colisión
@@ -424,7 +424,7 @@ void Update () {
 ```
 _MissileController.cs: Update method_
 
-Si ejecutamos, veremos que ahora el misil se mueve en la dirección correcta, si en mitad de ejecución rotamos el misil, la dirección cambiará a la correcta, sin embargo, resulta poco realista (giros bruscos) pues no hacemos uso de la física ni aceleraciones (no las necesitaremo porque este misil va recto)
+Si ejecutamos, veremos que ahora el misil se mueve en la dirección correcta, si en mitad de ejecución rotamos el misil, la dirección cambiará a la correcta, sin embargo, resulta poco realista (giros bruscos) pues no hacemos uso de la física ni aceleraciones (no las necesitaremos porque este misil va recto)
 
 > Ahora nos podemos divertir creando un prefab del misil y poniéndolo en el Level1 apuntando a los barriles
 
@@ -515,7 +515,7 @@ Cambiemos los valores de las nuevas variables en el Inspector (por ejemplo, expl
 
 Guau! Tenemos un súper-misil, que destroza todo a su paso sin inmutarse, claro, hemos programado los efectos de la explosión, pero ninguna explosión!!
 
-Para implementar la explosión, tendremos que realizr dos acciones:    
+Para implementar la explosión, tendremos que realizar dos acciones:    
 1. Eliminar el misil
 2. Poner en su lugar una explosión (sistema de partículas y efectos)
 
@@ -589,7 +589,7 @@ _Player.cs_
 
 Puesto que el prefab missile ya posee el comportamiento del misil (movimiento y explosión), esto se ejecutará automáticamente en el momento de instanciarlo. Para probarlo, llamamos a Fire desde Start (lo que disparará un misil al comienzo de la partida). Recordemos poner el misil en la variable Missile de Player!!
 
-Si ejecutamos, vemos que ocurre una explosión extraña, y no vemos ningún misil... Tras golpearnos la cabeza con la pared varías veces, podremos ver que el problema reside en que el misil "choca" con nuestro jugador (al fin y al cabo, a sido instanciado en su misma posición), de hecho, tiene sentido instanciar el misil en otro sitio (por ejemplo, lo que sería la mano del jugador). Para hacer esto, creamos un nuevo objeto vacío y lo colocamos como hijo de nuestro **FirstPersonCharacter** (así girará con nuestra cámara), en una posición donde queramos instancia el misil (fuera del collider del jugador). Podemos llamar a este objeto `Gun`
+Si ejecutamos, vemos que ocurre una explosión extraña, y no vemos ningún misil... Tras golpearnos la cabeza con la pared varías veces, podremos ver que el problema reside en que el misil "choca" con nuestro jugador (al fin y al cabo, ha sido instanciado en su misma posición), de hecho, tiene sentido instanciar el misil en otro sitio (por ejemplo, lo que sería la mano del jugador). Para hacer esto, creamos un nuevo objeto vacío y lo colocamos como hijo de nuestro **FirstPersonCharacter** (así girará con nuestra cámara), en una posición donde queramos instancia el misil (fuera del collider del jugador). Podemos llamar a este objeto `Gun`
 
 En nuestro código de Player, haremos algunas modificaciones, en lugar de Instanciar en la posición de Player, queremos instanciar exactamente en la posición de Gun. Para ello, crearemos una variable pública **Transform** (recordemos que transform es el componente con la posición) y sustituimos this.transform por dicha variable, también instanciaremos en la dirección de gun, así dispararemos en la dirección que tengamos a player:
 
